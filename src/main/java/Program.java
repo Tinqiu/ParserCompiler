@@ -23,7 +23,7 @@ public class Program {
             Pattern pattern = Pattern.compile(compiledPatterns.get(compiledPatterns.size()-1));
             process(pattern, toMatch[index], patternCount);
             index++;
-           System.out.println(compiledPatterns.get(compiledPatterns.size()-1));
+            //System.out.println(compiledPatterns.get(compiledPatterns.size()-1));
         }
     }
 
@@ -41,6 +41,7 @@ public class Program {
             for(int i = 0; i<=reverseToMatch.size()/patternCount;i++){
                 StringBuilder sb = new StringBuilder();
                 for(int j = patternCount; j>=0; j--) {
+                    //crawl the range through the list to cover all ordered-word possibilities
                     sb.append(reverseToMatch.get(j+(i*patternCount)));
                 }
 
