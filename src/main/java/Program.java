@@ -7,48 +7,60 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Program {
+    static List<String> compiledMatchingPatterns = new ArrayList<>();
+    static List<String> compiledTransformPatterns = new ArrayList<>();
     public static void main(String args[]){
-        String[] inPatterns = {"a1n1a2<->n2a3n3", "a1a2a3n1n2n3", "a1a2a3 n1n2n3"};
-        String[] toMatch = {"é1è-1m1 Truly this is a day of é1ë-2n2",
-                            "aaa111 bbb222",
-                            "çôê 777 This is the end of the kkhk 222"};
+        String[] inPatterns = {"a1n1a2 n2a3n3,a1n1a2n2a3n3",
+                                "<code>   ,  <code>  "};
+        String[] toMatch = {"G1Q 1Q9",
+                            "Hi, this is my postal code   tw"};
 
-        int index = 0;
-        List<String> compiledPatterns = new ArrayList<>();
-        for(String inPattern : inPatterns){
-            C1 c1 = new C1();
-            int patternCount = Arrays.asList(inPattern.split(" ")).size();
+        for(String var : toMatch){
+            for(String inPattern : inPatterns) {
+                C1 c1 = new C1();
 
-            compiledPatterns.add(c1.createPattern(inPattern));
-            Pattern pattern = Pattern.compile(compiledPatterns.get(compiledPatterns.size()-1));
-            process(pattern, toMatch[index], patternCount);
-            index++;
-            //System.out.println(compiledPatterns.get(compiledPatterns.size()-1));
+                int patternCount = Arrays.asList(inPattern.split("((?<=\\s)|(?=\\s))")).size();
+
+                compiledMatchingPatterns.add(c1.createMatchignPattern(inPattern.split(",")[0]));
+                generateTransformPatterns(inPattern.split(",")[1]);
+
+                Pattern pattern = Pattern.compile(compiledMatchingPatterns.get(compiledMatchingPatterns.size() - 1));
+                process(pattern, var, patternCount);
+
+                //System.out.println(compiledPatterns.get(compiledPatterns.size()-1));
+            }
         }
+
+    }
+
+    private static void generateTransformPatterns(String prePattern){
+        C1 c1 = new C1();
+        compiledTransformPatterns.add(c1.createTransformPattern(prePattern));
     }
 
 
 
     private static void process(Pattern compiledPattern, String toMatch, int patternCount){
         List<String> reverseToMatch = new ArrayList();
-        Stream.of(toMatch.split("((?<=\\s)|(?=\\s))"))
+        Stream.of(toMatch.split("((?<=\\W)|(?=\\W))"))
                 .collect(Collectors.toCollection(LinkedList::new))
                 .descendingIterator().forEachRemaining(reverseToMatch::add);
 
 
 
         if(patternCount > 1) {
-            for(int i = 0; i<=reverseToMatch.size()/patternCount;i++){
+            for(int i = 0; i<reverseToMatch.size()-patternCount;i++){
                 StringBuilder sb = new StringBuilder();
                 for(int j = patternCount; j>=0; j--) {
                     //crawl the range through the list to cover all ordered-word possibilities
-                    sb.append(reverseToMatch.get(j+(i*patternCount)));
+                    sb.append(reverseToMatch.get(j+i));
                 }
 
                 toMatch = sb.toString();
                 Matcher matcher = compiledPattern.matcher(toMatch);
                 if(matcher.find()) {
                     System.out.println("found match: " + matcher.group());
+                    transform(matcher.group(), compiledTransformPatterns);
                     break;
                 }
                     //else System.out.println("no match found");
@@ -66,6 +78,26 @@ public class Program {
                 //else System.out.println("no match found");
             }
         }
+    }
+
+    private static void transform(String toTranform, List<String> transformPattern){
+        StringBuilder sb = new StringBuilder();
+        String[] mappingTable = transformPattern.get(0).split(",");
+        String[] toMap = toTranform.split("");
+
+        for(int i = 0; i <=mappingTable.length-1;i++){
+            Pattern pattern = Pattern.compile(mappingTable[i]);
+            for(int j = 0; j<=toMap.length-1;j++){
+                Matcher matcher = pattern.matcher(toMap[j]);
+                if(matcher.find()){
+                    sb.append(toMap[j]);
+                    toMap[j] = "%&%";
+                    break;
+                }
+            }
+        }
+        System.out.println(sb.toString());
+
     }
 }
 

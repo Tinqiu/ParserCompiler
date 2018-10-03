@@ -11,12 +11,20 @@ enum Type{
 public class C1 {
     private List<String> patternForm = new ArrayList<>();
 
-    public String createPattern(String s) {
+    public String createMatchignPattern(String s) {
             s.chars()
                     .mapToObj(c -> (char) c)
                     .forEach(c -> preBuildPattern(c));
-        return compressString(patternForm);
+        return compressString(patternForm, false);
     }
+
+    public String createTransformPattern(String s) {
+        s.chars()
+                .mapToObj(c -> (char) c)
+                .forEach(c -> preBuildPattern(c));
+        return compressString(patternForm, true);
+    }
+
 
     static boolean perfectFlag = false;
     private void preBuildPattern(Character c){
@@ -39,32 +47,41 @@ public class C1 {
         }
     }
 
-    //PARSE
     //convert and compress the string to a regex pattern with Run Length encoding
-    private String compressString(List<String> toCompress){
+    private String compressString(List<String> toCompress, boolean toTransform){
         String compressed = "";
 
-        String str = "^";
+        String str = toTransform ? "" : "^";
         int count=1;
-        for (String val:toCompress) {
+        for (String val : toCompress) {
             if(val.equals(str)){
-                count++;
+                if(toTransform){
+                    compressed = compressed + getMatchType(str) +",";
+                }else count++;
             }
             else {
-                compressed = compressed + getMatchType(str);
+                if(toTransform){
+                    compressed = compressed + getMatchType(str) +",";
+                } else compressed = compressed + getMatchType(str);
                 if(count != 1){
-                    compressed = compressed + "{" + String.valueOf(count) +"}";
+                    if(toTransform){
+                        compressed = compressed + getMatchType(str) +",";
+                    }else compressed = compressed + "{" + String.valueOf(count) +"}";
                 }
                 str = val;
                 count = 1;
             }
         }
-        compressed = compressed + getMatchType(str);
+        if(toTransform){
+            compressed = compressed + getMatchType(str) +",";
+        } else compressed = compressed + getMatchType(str);
         if(count != 1){
-            compressed = compressed + "{" + String.valueOf(count) +"}";
-            return compressed + "$";
+            if(toTransform){
+                compressed = compressed + getMatchType(str) +",";
+            } else compressed = compressed + "{" + String.valueOf(count) +"}";
+            return toTransform ? compressed.substring(1,compressed.length()-1) : compressed + "$";
         }
-        return compressed + "$";
+        return toTransform ? compressed.substring(1,compressed.length()-1) : compressed + "$";
 
     }
 
