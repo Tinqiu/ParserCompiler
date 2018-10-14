@@ -33,7 +33,7 @@ public class PN005_MovePatternsBetweenVariables  {
     /** This PN's identifier */
     public static final String NAME = "PN005";
 
-     /** PN requires a two-column conversion table: var1pattern and var2pattern */
+    /** PN requires a two-column conversion table: var1pattern and var2pattern */
     private String[] table;
 
     /** The column in {@code table} containing the patterns to match {@code variable1} field against */
@@ -229,6 +229,7 @@ class C1 {
     private Matcher originalMatcher;
     private Normalizer.Form targetForm;
     private List<String> matchingOrder = new ArrayList<>();
+    private boolean isMatchingOrderSingleton = false;
 
     /**
      * Maps of tokens used to check if a transform is available based on the inputed patterns
@@ -268,12 +269,39 @@ class C1 {
 
     void setOriginalMatcher(Matcher matcher) {
         this.originalMatcher = matcher;
-        if (!"".equals(originalMatch) && !matchingOrder.isEmpty())
+        if (!"".equals(originalMatch) && !matchingOrder.isEmpty()) {
+            trimOriginalMatch();
             buildReconstructTable();
+        }
     }
 
     void setTargetForm(Normalizer.Form form) {
         this.targetForm = form;
+    }
+
+    void trimOriginalMatch(){
+        StringBuilder sb = new StringBuilder();
+        String[] originalSplit;
+        String[] matchedSplit;
+        String seperator = isMatchingOrderSingleton ? "" : " ";
+
+        if (!isMatchingOrderSingleton) {
+            originalSplit = originalMatch.split(" ");
+            matchedSplit = originalMatcher.group().split(" ");
+        }
+
+        else {
+            originalSplit = originalMatch.split("");
+            matchedSplit = originalMatcher.group().split("");
+        }
+
+        for(int i=0; i<= matchedSplit.length - 1; i++){
+            sb.append(originalSplit[i] + seperator);
+        }
+
+        originalMatch = sb.toString().trim();
+
+
     }
 
     String getOriginalMatch() {
@@ -453,13 +481,13 @@ class C1 {
      * @return the full compilable string pattern
      */
     private String prepareForCompilation(List<String> toCompile, boolean toTransform) {
-        StringBuilder converted = new StringBuilder(toTransform ? "" : "^");
+        StringBuilder converted = new StringBuilder();
         toCompile
                 .forEach(c -> converted.append(toTransform ? convertTokenToPattern(c, true) + "," : convertTokenToPattern(c, false)));
 
         String returnString = converted.toString();
         //remove the trailing comma before returning if it was a transform pattern that was generated
-        return toTransform ? returnString.substring(1, returnString.length() - 1) : returnString + "$";
+        return toTransform ? returnString.substring(1, returnString.length() - 1) : returnString;
     }
 
     /***
@@ -543,9 +571,9 @@ class C1 {
         String[] originalSplit = {};
         String normalizedMatch = Normalizer.normalize(originalMatch, Normalizer.Form.NFC);
 
-        Boolean singleton = isSingletonPattern(matchingOrder);
+        isMatchingOrderSingleton = isSingletonPattern(matchingOrder);
 
-        if (!singleton)
+        if (!isMatchingOrderSingleton)
             originalSplit = normalizedMatch.split(" ");
         else
             originalSplit = normalizedMatch.split("");
@@ -600,4 +628,3 @@ class AmbiguousPatternException extends Exception{
 class InvalidPatternException extends Exception{
     public InvalidPatternException(String message){super (message);}
 }
-

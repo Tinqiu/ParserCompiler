@@ -86,7 +86,7 @@ public class PN005_MovePatternsBetweenVariables_Tests {
 //                        invalidPatterns
 //                ),
 
-                // ***** Accent tests ***** //
+                //  ***** Accent tests ***** //
                 Arguments.of(
                         // One or more alpha, with accents and var2 empty
                         new String[]{"x ábÇ z", ""},
@@ -136,73 +136,84 @@ public class PN005_MovePatternsBetweenVariables_Tests {
                         new String[]{"", "\u0061\u0301 \u0061\u03011b2\u0043\u03273"},
                         new String[]{"a1n1a2 n2a3n3","a1n2a2n2a3n3"}
                 ),
-////                Arguments.of(
-////                        // exact match, with accents
-////                        new String[]{"P.ö. Böx 245", ""},
-////                        new String[]{"", "PO Box 245"},
-////                        axNxTextPatterns
-////                ),
-////                Arguments.of(
-////                        // exact match, with decomposed accents
-////                        new String[]{"P.\u006f\u0308. B\u006f\u0308x 245", ""},
-////                        new String[]{"", "PO Box 245"},
-////                        axNxTextPatterns
-////                ),
                 Arguments.of(
-                        // exact match
-                        new String[]{"É ü D--Ö/G44!*'  5", ""},
-                        new String[]{"", "É ü dog  5"},
-                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
+                        // exact match, with accents
+                        new String[]{"611 boul. Alexandre-Taché, P.ö. Böx 245 , Gatineau, QC", ""},
+                        new String[]{"611 boul. Alexandre-Taché,  , Gatineau, QC", "PO Box 245"},
+                        new String[]{"<P.O. BOX> N1","<PO Box> N1"}
                 ),
 
                 Arguments.of(
-                        // exact match with isolated diacritics
-                        new String[]{"É ü D--Ö/G44!*' \u0308\u0301 5", ""},
-                        new String[]{"", "É ü dog  5"},
-                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
-                )
+                        // var2 empty
+                        new String[]{"P.O. Box 245 Ottawa ON K1K 3R4", ""},
+                        new String[]{" Ottawa ON K1K 3R4", "PO Box 245"},
+                        new String[]{"<P.O. BOX> N1","<PO Box> N1"}
+                ),
 
-////
-////                // ***** Supplied Example #1, axnx pattern ***** //
-////                Arguments.of(
-////                        // var2 empty
-////                        new String[]{"123 Main ST Ottawa ON K1K 3R4", ""},
-////                        new String[]{"123 Main ST Ottawa ON ", "K1K3R4"},
-////                        axNxPatterns
-////                ),
+                Arguments.of(
+                        // var2 <> table(var2pattern) of word(s) in var1
+                        new String[]{"CP 245 Ottawa ON K1K 3R4", "PO Box 623"},
+                        new String[]{" Ottawa ON K1K 3R4", "PO Box 623 PO Box 245"},
+                        new String[]{"<CP> N1","<PO Box> N1"}
+                ),
+
+                Arguments.of(
+                        // var2 empty
+                        new String[]{"G1q 1q9 76B", ""},
+                        new String[]{" 76B", "G1q1q9"},
+                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
+                )
+//                Arguments.of(
+//                        // exact match, with decomposed accents
+//                        new String[]{"P.\u006f\u0308. B\u006f\u0308x 245", ""},
+//                        new String[]{"", "PO Box 245"},
+//                        new String[]{"<P.O. BOX> N1","<PO Box> N1"}
+//                ),
+//                Arguments.of(
+//                        // exact match
+//                        new String[]{"É ü D--Ö/G44!*'  5", ""},
+//                        new String[]{"", "É ü dog  5"},
+//                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
+//                ),
+//
+//                Arguments.of(
+//                        // exact match with isolated diacritics
+//                        new String[]{"É ü D--Ö/G44!*' \u0308\u0301 5", ""},
+//                        new String[]{"", "É ü dog  5"},
+//                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
+//                ),
+//
+//
+//                // ***** Supplied Example #1, axnx pattern ***** //
+//                Arguments.of(
+//                        // var2 empty
+//                        new String[]{"123 Main ST Ottawa ON K1K 3R4", ""},
+//                        new String[]{"123 Main ST Ottawa ON ", "K1K3R4"},
+//                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
+//                ),
 ////                Arguments.of(
 ////                        // var2 == table(var2pattern) of word(s) in var1
 ////                        new String[]{"123 Main ST Ottawa ON K1K3R4", "K1K3R4"},
 ////                        new String[]{"123 Main ST Ottawa ON ", "K1K3R4"},
-////                        axNxPatterns
+////                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
 ////                ),
-////                Arguments.of(
-////                        // var2 <> table(var2pattern) of word(s) in var1
-////                        new String[]{"123 Main ST Ottawa ON K1K 3R4", "K1K3R5"},
-////                        new String[]{"123 Main ST Ottawa ON ", "K1K3R5 K1K3R4"},
-////                        axNxPatterns
-////                ),
-////
-////                // ***** Supplied Example #2, <text> Nx pattern ***** //
-////                Arguments.of(
-////                        // var2 empty
-////                        new String[]{"P.O. Box 245 Ottawa ON K1K 3R4", ""},
-////                        new String[]{" Ottawa ON K1K 3R4", "PO Box 245"},
-////                        axNxTextPatterns
-////                ),
-////                Arguments.of(
-////                        // var2 == table(var2pattern) of word(s) in var1
-////                        new String[]{"PO Box 245 Ottawa ON K1K3R4", "PO Box 245"},
-////                        new String[]{" Ottawa ON K1K3R4", "PO Box 245"},
-////                        axNxTextPatterns
-////                ),
-////                Arguments.of(
-////                        // var2 <> table(var2pattern) of word(s) in var1
-////                        new String[]{"CP 245 Ottawa ON K1K 3R4", "PO Box 623"},
-////                        new String[]{" Ottawa ON K1K 3R4", "PO Box 623 PO Box 245"},
-////                        axNxTextPatterns
-////                ),
-//
+//                Arguments.of(
+//                        // var2 <> table(var2pattern) of word(s) in var1
+//                        new String[]{"123 Main ST Ottawa ON K1K 3R4", "K1K3R5"},
+//                        new String[]{"123 Main ST Ottawa ON ", "K1K3R5 K1K3R4"},
+//                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
+//                ),
+
+                // ***** Supplied Example #2, <text> Nx pattern ***** //
+
+//                Arguments.of(
+//                        // var2 == table(var2pattern) of word(s) in var1
+//                        new String[]{"PO Box 245 Ottawa ON K1K3R4", "PO Box 245"},
+//                        new String[]{" Ottawa ON K1K3R4", "PO Box 245"},
+//                        axNxTextPatterns
+//                ),
+
+
 ////                // ***** Supplied Example #3, axnx pattern ***** //
 ////                Arguments.of(
 ////                        // var2 empty
@@ -216,14 +227,9 @@ public class PN005_MovePatternsBetweenVariables_Tests {
 ////                        new String[]{"1 A 2 B 3 C  F", "D 4 D-4"},
 ////                        axNxReOrderPatterns
 ////                ),
-//
-//                // ***** Supplied Scenario 1, axnx pattern ***** //
-//                Arguments.of(
-//                        // var2 empty
-//                        new String[]{"G1q 1q9 76B", ""},
-//                        new String[]{" 76B", "G1q1q9"},
-//                        axNxPatterns
-//                ),
+
+                // ***** Supplied Scenario 1, axnx pattern ***** //
+
 //
 //                // ***** Supplied Scenario 2, <text>  N1 pattern ***** //
 //                Arguments.of(
