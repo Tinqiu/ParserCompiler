@@ -69,7 +69,7 @@ public class PN005_MovePatternsBetweenVariables  {
         this.var1_field = variable1;
         this.var2_field = variable2;
         this.table = table;
-        process();
+        //process();
     }
 
     /**
@@ -137,6 +137,7 @@ public class PN005_MovePatternsBetweenVariables  {
                 if (matcher.find()) {
                     c1.setOriginalMatcher(matcher);
                     transform(normalizedToMatch, c1, matchingPatterns[1]);
+                    break;
                 }
             }
         }
@@ -173,6 +174,8 @@ public class PN005_MovePatternsBetweenVariables  {
     private void updateRegisters(String var1, String var2) {
 
         results[0] = var1;
+        if(!"".equals(var2_field))
+            var2 = var2_field += " " + var2;
         results[1] = var2;
     }
 
@@ -265,7 +268,7 @@ class C1 {
 
     void setOriginalMatcher(Matcher matcher) {
         this.originalMatcher = matcher;
-        if(!"".equals(originalMatch) && !matchingOrder.isEmpty())
+        if (!"".equals(originalMatch) && !matchingOrder.isEmpty())
             buildReconstructTable();
     }
 
@@ -537,12 +540,22 @@ class C1 {
      * builds the table containing the original string values associated with a matching group
      */
     private void buildReconstructTable() {
-        String[] originalSplit = originalMatch.split(" ");
+        String[] originalSplit = {};
+        String normalizedMatch = Normalizer.normalize(originalMatch, Normalizer.Form.NFC);
+
+        Boolean singleton = isSingletonPattern(matchingOrder);
+
+        if (!singleton)
+            originalSplit = normalizedMatch.split(" ");
+        else
+            originalSplit = normalizedMatch.split("");
+
         for (String match : matchingOrder) {
             //only proceed of there's an actual group to be matched (a, A, n or N tokens)
             if (!match.startsWith("s") && !match.startsWith("p") && !match.startsWith("~")) {
                 for (int i = 0; i <= originalSplit.length - 1; i++) {
-                    if (originalMatcher.group(match).equals(originalSplit[i].toUpperCase().replaceAll(MATCH_COMBINING_CHARS, ""))) {
+                    if (originalMatcher.group(match).equals(
+                            Normalizer.normalize(originalSplit[i], Normalizer.Form.NFD).toUpperCase().replaceAll(MATCH_COMBINING_CHARS, ""))) {
                         reconstructTable.put(match, originalSplit[i]);
                         originalSplit[i] = "";
                         break;
@@ -551,7 +564,23 @@ class C1 {
             }
         }
     }
+
+    /***
+     * If the pattern contains only single-match constructs,
+     * @param toVerify
+     * @return
+     */
+    private Boolean isSingletonPattern(List<String> toVerify) {
+        for (String s : toVerify) {
+            if (s.startsWith("A") || s.startsWith("N") || s.startsWith("~"))
+                return false;
+        }
+        return true;
+    }
 }
+
+
+
 
 /***
  * This exception is thrown when an ambiguous matching or transform pattern is detected. An ambiguous

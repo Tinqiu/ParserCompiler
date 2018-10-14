@@ -91,56 +91,51 @@ public class PN005_MovePatternsBetweenVariables_Tests {
                         // One or more alpha, with accents and var2 empty
                         new String[]{"x ábÇ z", ""},
                         new String[]{"", "x z ábÇ"},
+                        new String[]{"a1 A2 a3","a1 a3 A2"}
+                ),
+
+                Arguments.of(
+                        // One or more alpha, with accents and var2 != var1
+                        new String[]{"x ábÇ z", "ÇĎ"},
+                        new String[]{"", "ÇĎ x z ábÇ"},
                         new String[]{"a1 A2 a3","a1 a2 A3"}
                 ),
                 Arguments.of(
-                        // exact match with isolated diacritics
-                        new String[]{"É ü D--Ö/G44!*' \u0308\u0301 5", ""},
-                        new String[]{"", "É ü Dog  5"},
-                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <Dog>  n1"}
-                )
-//                Arguments.of(
-//                        // One or more alpha, with accents and var2 != var1
-//                        new String[]{"x ábÇ z", "ÇĎ"},
-//                        new String[]{"", "ÇĎ x z ábÇ"},
-//                        axNxPatterns
-//                ),
-//                Arguments.of(
-//                        // One or more alpha, with decomposed accents and var2 empty
-//                        new String[]{"x \u0061\u0301b\u0043\u0327 z", ""},
-//                        new String[]{"", "x z ábÇ"},
-//                        axNxPatterns
-//                ),
-//                Arguments.of(
-//                        // One or more alpha, with decomposed accents and var2 != var1
-//                        new String[]{"x \u0061\u0301b\u0043\u0327 z", "\u0061\u0301"},
-//                        new String[]{"", "\u0061\u0301 x z \u0061\u0301b\u0043\u0327"},
-//                        axNxPatterns
-//                ),
-////                Arguments.of(
-////                        // single alpha, with accents and var2 empty
-////                        new String[]{"á1b 2Ç3", ""},
-////                        new String[]{"", "á1b2Ç3"},
-////                        axNxPatterns
-////                ),
-////                Arguments.of(
-////                        // single alpha, with accents and var2 != var1
-////                        new String[]{"á1b 2Ç3", "Ö"},
-////                        new String[]{"", "Ö á1b2Ç3"},
-////                        axNxPatterns
-////                ),
-////                Arguments.of(
-////                        // single alpha, with decomposed accents and var2 empty
-////                        new String[]{"\u0061\u03011b 2\u0043\u03273", ""},
-////                        new String[]{"", "á1b2Ç3"},
-////                        axNxPatterns
-////                ),
-////                Arguments.of(
-////                        // single alpha, with decomposed accents and var2 != var 1
-////                        new String[]{"\u0061\u03011b 2\u0043\u03273", "\u0061\u0301"},
-////                        new String[]{"", "\u0061\u0301 \u0061\u03011b2\u0043\u03273"},
-////                        axNxPatterns
-////                ),
+                        // One or more alpha, with decomposed accents and var2 empty
+                        new String[]{"x \u0061\u0301b\u0043\u0327 z", ""},
+                        new String[]{"", "x z ábÇ"},
+                        new String[]{"a1 A2 a3","a1 a2 A3"}
+                ),
+                Arguments.of(
+                        // One or more alpha, with decomposed accents and var2 != var1
+                        new String[]{"x \u0061\u0301b\u0043\u0327 z", "\u0061\u0301"},
+                        new String[]{"", "\u0061\u0301 x z \u0061\u0301b\u0043\u0327"},
+                        new String[]{"a1 A2 a3","a1 a2 A3"}
+                ),
+                Arguments.of(
+                        // single alpha, with accents and var2 empty
+                        new String[]{"á 1 b 2 Ç 3", ""},
+                        new String[]{"", "á1b2Ç3"},
+                        new String[]{"a1 n1 A2 n2 a3 n3","a1n2A2n2a3n3"}
+                ),
+                Arguments.of(
+                        // single alpha, with accents and var2 != var1
+                        new String[]{"á1b 2Ç3", "Ö"},
+                        new String[]{"", "Ö á1b2Ç3"},
+                        new String[]{"a1n1a2 n2a3n3","a1n2a2n2a3n3"}
+                ),
+                Arguments.of(
+                        // single alpha, with decomposed accents and var2 empty
+                        new String[]{"\u0061\u03011b 2\u0043\u03273", ""},
+                        new String[]{"", "á1b2Ç3"},
+                        new String[]{"a1n1a2 n2a3n3","a1n2a2n2a3n3"}
+                ),
+                Arguments.of(
+                        // single alpha, with decomposed accents and var2 != var 1
+                        new String[]{"\u0061\u03011b 2\u0043\u03273", "\u0061\u0301"},
+                        new String[]{"", "\u0061\u0301 \u0061\u03011b2\u0043\u03273"},
+                        new String[]{"a1n1a2 n2a3n3","a1n2a2n2a3n3"}
+                ),
 ////                Arguments.of(
 ////                        // exact match, with accents
 ////                        new String[]{"P.ö. Böx 245", ""},
@@ -153,12 +148,19 @@ public class PN005_MovePatternsBetweenVariables_Tests {
 ////                        new String[]{"", "PO Box 245"},
 ////                        axNxTextPatterns
 ////                ),
-////                Arguments.of(
-////                        // exact match
-////                        new String[]{"É ü D--Ö/G44!*'  5", ""},
-////                        new String[]{"", "É ü dog  5"},
-////                        axNxTextPatterns
-////                ),
+                Arguments.of(
+                        // exact match
+                        new String[]{"É ü D--Ö/G44!*'  5", ""},
+                        new String[]{"", "É ü dog  5"},
+                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
+                ),
+
+                Arguments.of(
+                        // exact match with isolated diacritics
+                        new String[]{"É ü D--Ö/G44!*' \u0308\u0301 5", ""},
+                        new String[]{"", "É ü dog  5"},
+                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
+                )
 
 ////
 ////                // ***** Supplied Example #1, axnx pattern ***** //
