@@ -12,9 +12,9 @@ public class Program {
     public static void main(String args[]){
         ArrayList<String[]> inPatterns = new ArrayList<>();
 
-        String toMatch = "G1Q  1Q9";
+        String toMatch = "Tu savais que G1Q  1Q9 oui? Well good.";
 
-        String[] patterns = {"a1n1a2  n2a3n3","<test>a1n1a2 n2a3n3"};
+        String[] patterns = {"a1n1a2  n2a3n3","<exact text here >a1n1a2 n2a3n3"};
         inPatterns.add(patterns);
         try {
             match(inPatterns, toMatch);
@@ -50,7 +50,7 @@ public class Program {
 
                         Matcher matcher = compiledMatchPattern.matcher(sb.toString());
                         if (matcher.find()) {
-                            System.out.println("found match: " + matcher.group() + " using pattern: " + compiledMatchPattern.toString());
+                            System.out.println("found match: " + matcher.group() + "\nusing pattern: " + compiledMatchPattern.toString());
 
                             List<String> transformPattern = c1.createPatternForTransforming(matchPattern[1]);
                             if(c1.transformAvailable()) {
