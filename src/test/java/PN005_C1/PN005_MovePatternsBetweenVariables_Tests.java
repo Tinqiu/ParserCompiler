@@ -162,47 +162,47 @@ public class PN005_MovePatternsBetweenVariables_Tests {
                         new String[]{"G1q 1q9 76B", ""},
                         new String[]{" 76B", "G1q1q9"},
                         new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
-                )
+                ),
+                Arguments.of(
+                        // exact match, with decomposed accents
+                        new String[]{"P.\u006f\u0308. B\u006f\u0308x 245", ""},
+                        new String[]{"", "PO Box 245"},
+                        new String[]{"<P.O. BOX> N1","<PO Box> N1"}
+                ),
+                Arguments.of(
+                        // exact match
+                        new String[]{"É ü D--Ö/G44!*'  5", ""},
+                        new String[]{"", "É ü dog  5"},
+                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
+                ),
+
+                Arguments.of(
+                        // exact match with isolated diacritics
+                        new String[]{"É ü D--Ö/G44!*' \u0308\u0301 5", ""},
+                        new String[]{"", "É ü dog  5"},
+                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
+                ),
+
+
+                // ***** Supplied Example #1, axnx pattern ***** //
+                Arguments.of(
+                        // var2 empty
+                        new String[]{"123 Main ST Ottawa ON K1K 3R4", ""},
+                        new String[]{"123 Main ST Ottawa ON ", "K1K3R4"},
+                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
+                ),
 //                Arguments.of(
-//                        // exact match, with decomposed accents
-//                        new String[]{"P.\u006f\u0308. B\u006f\u0308x 245", ""},
-//                        new String[]{"", "PO Box 245"},
-//                        new String[]{"<P.O. BOX> N1","<PO Box> N1"}
-//                ),
-//                Arguments.of(
-//                        // exact match
-//                        new String[]{"É ü D--Ö/G44!*'  5", ""},
-//                        new String[]{"", "É ü dog  5"},
-//                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
-//                ),
-//
-//                Arguments.of(
-//                        // exact match with isolated diacritics
-//                        new String[]{"É ü D--Ö/G44!*' \u0308\u0301 5", ""},
-//                        new String[]{"", "É ü dog  5"},
-//                        new String[]{"a1 a2 <D--O/G44!*'>  n1", "a1 a2 <dog>  n1"}
-//                ),
-//
-//
-//                // ***** Supplied Example #1, axnx pattern ***** //
-//                Arguments.of(
-//                        // var2 empty
-//                        new String[]{"123 Main ST Ottawa ON K1K 3R4", ""},
+//                        // var2 == table(var2pattern) of word(s) in var1
+//                        new String[]{"123 Main ST Ottawa ON K1K3R4", "K1K3R4"},
 //                        new String[]{"123 Main ST Ottawa ON ", "K1K3R4"},
 //                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
 //                ),
-////                Arguments.of(
-////                        // var2 == table(var2pattern) of word(s) in var1
-////                        new String[]{"123 Main ST Ottawa ON K1K3R4", "K1K3R4"},
-////                        new String[]{"123 Main ST Ottawa ON ", "K1K3R4"},
-////                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
-////                ),
-//                Arguments.of(
-//                        // var2 <> table(var2pattern) of word(s) in var1
-//                        new String[]{"123 Main ST Ottawa ON K1K 3R4", "K1K3R5"},
-//                        new String[]{"123 Main ST Ottawa ON ", "K1K3R5 K1K3R4"},
-//                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
-//                ),
+                Arguments.of(
+                        // var2 <> table(var2pattern) of word(s) in var1
+                        new String[]{"123 Main ST Ottawa ON K1K 3R4", "K1K3R5"},
+                        new String[]{"123 Main ST Ottawa ON ", "K1K3R5 K1K3R4"},
+                        new String[]{"a1n1a2 n2a3n3", "a1n1a2n2a3n3"}
+                ),
 
                 // ***** Supplied Example #2, <text> Nx pattern ***** //
 
@@ -257,11 +257,11 @@ public class PN005_MovePatternsBetweenVariables_Tests {
 //                        new String[]{"", ""},
 //                        axNxPatterns
 //                ),
-//                Arguments.of(
-//                        new String[]{"Tu ne fais pas 17 de sens",""},
-//                        new String[]{"Tu ne fais pas ","de sens 17"},
-//                        axNxTextPatterns
-//                )
+                Arguments.of(
+                        new String[]{"Tu ne fais pas de sens",""},
+                        new String[]{"Tu ne fais pas ","de sens"},
+                        new String[]{"<DE SENS>", "<de sens>"}
+                )
 
         );
     }

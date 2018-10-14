@@ -595,8 +595,8 @@ class C1 {
 
     /***
      * If the pattern contains only single-match constructs,
-     * @param toVerify
-     * @return
+     * @param toVerify the list of strings to iterate over
+     * @return false if a construct starts with either A, N or ~, true otherwise
      */
     private Boolean isSingletonPattern(List<String> toVerify) {
         for (String s : toVerify) {
@@ -606,8 +606,6 @@ class C1 {
         return true;
     }
 }
-
-
 
 
 /***
