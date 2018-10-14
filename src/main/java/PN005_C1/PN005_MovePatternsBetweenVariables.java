@@ -54,7 +54,12 @@ public class PN005_MovePatternsBetweenVariables  {
     /**  A constant to replace the regex to improve the readability of the code */
     private static final String SPLIT_ON_SPACE_LOOKBEHIND = "((?<=[\\s])|(?=[\\s]))";
 
-    private static final Pattern VALID_PATTERN = Pattern.compile("^(a\\d|A\\d|n\\d|N\\d|<.+>| )*$");
+    /** A Regex pattern that verifies if a pattern contains only valid constructs
+     * (ak, Ak, nk, Nk, <perfectMatch>, single whitespace; where k is a number of length 1 or more)*/
+    private static final Pattern VALID_PATTERN = Pattern.compile("^(a\\d+|A\\d+|n\\d+|N\\d+|<.+>| )*$");
+
+    /** Regex pattern that matches combining characters (accents, umlauts, enclosing boxes, etc.) */
+    private static final String MATCH_COMBINING_CHARS = "[^\\P{M}]";
 
     private String[] results = {"",""};
 
@@ -102,7 +107,8 @@ public class PN005_MovePatternsBetweenVariables  {
 
         Normalizer.Form originalForm = getNormalizationForm(variable1);
         Normalizer.Form targetForm = getNormalizationForm(var2_field);
-        //if var2_field has no Normalizer.Form, then make it NFC
+
+        //if var2_field has no Normalizer.Form, then make it the same as the original form
         targetForm = targetForm != null ? targetForm : originalForm;
 
 
@@ -113,24 +119,21 @@ public class PN005_MovePatternsBetweenVariables  {
         //split the string to match on spaces but keep them in the list using the lookbehind pattern
         //collect the string array into a linked list then reverse the order of the "sentence"
         Stream.of(normalizedToMatch.split(SPLIT_ON_SPACE_LOOKBEHIND))
-                .forEach(c -> reverseStack.push(c));
-
-        int patternLength;
+                .forEach(reverseStack::push);
 
         Matcher matcher = VALID_PATTERN.matcher(matchingPatterns[0]);
         if (matcher.find()) {
             C1 c1 = new C1();
-            c1.setOriginalForm(originalForm);
             c1.setTargetForm(targetForm);
             Pattern compiledMatchPattern = Pattern.compile(c1.createPatternForMatching(matchingPatterns[0]));
 
-            //setup the pattern
+
             String matchAttempt = "";
 
             while (!reverseStack.isEmpty()) {
                 matchAttempt = reverseStack.pop() + matchAttempt;
-                c1.setOriginalMatch(matchAttempt.toString());
-                matcher = compiledMatchPattern.matcher(matchAttempt.replaceAll("[^\\P{M}]", "").toUpperCase());
+                c1.setOriginalMatch(matchAttempt);
+                matcher = compiledMatchPattern.matcher(matchAttempt.replaceAll(MATCH_COMBINING_CHARS, "").toUpperCase());
                 if (matcher.find()) {
                     c1.setOriginalMatcher(matcher);
                     transform(normalizedToMatch, c1, matchingPatterns[1]);
@@ -201,6 +204,7 @@ public class PN005_MovePatternsBetweenVariables  {
  * Items 1 through 4 must be followed by an occurrence number.
  */
 class C1 {
+    private static final String MATCH_COMBINING_CHARS = "[^\\P{M}]";
     /**
      * Internals for metrics and proper assigning
      */
@@ -220,7 +224,6 @@ class C1 {
 
     private String originalMatch;
     private Matcher originalMatcher;
-    private Normalizer.Form originalForm;
     private Normalizer.Form targetForm;
     private List<String> matchingOrder = new ArrayList<>();
 
@@ -235,7 +238,15 @@ class C1 {
      */
     private boolean perfectFlag = false;
 
-    private String[] ambiguousPatterns = {"A1a2"};
+    /**
+     * Array of known ambiguous patterns
+     */
+    private String[] ambiguousPatterns = {"A1a2", "N1n2"};
+
+    /**
+     * HashMap containing the constructs to be used to build the transformed string
+     */
+    private HashMap<String, String> reconstructTable = new HashMap<>();
 
     /***
      * Default constructor; initializes the internal maps to hold the token counts for matching and transform patterns
@@ -247,17 +258,15 @@ class C1 {
         }
     }
 
+
     void setOriginalMatch(String s) {
         this.originalMatch = s;
     }
 
     void setOriginalMatcher(Matcher matcher) {
         this.originalMatcher = matcher;
-        buildReconstructTable();
-    }
-
-    void setOriginalForm(Normalizer.Form form) {
-        this.originalForm = form;
+        if(!"".equals(originalMatch) && !matchingOrder.isEmpty())
+            buildReconstructTable();
     }
 
     void setTargetForm(Normalizer.Form form) {
@@ -327,13 +336,17 @@ class C1 {
         return true;
     }
 
+    /***
+     * Gets the value of the original string that matches the matching group name
+     * @param groupName the matching group name
+     * @return returns the normalized value of the original string in its target form
+     */
     String getReconstructString(String groupName) {
         String originalSubstring = reconstructTable.get(groupName);
-        if (Normalizer.isNormalized(originalSubstring,targetForm))
+        if (Normalizer.isNormalized(originalSubstring, targetForm))
             return originalSubstring;
         else
             return Normalizer.normalize(originalSubstring, targetForm);
-
     }
 
     /***
@@ -344,8 +357,8 @@ class C1 {
         StringBuilder sb = new StringBuilder();
         //Title + headers
         sb.append("The transform pattern contains too many tokens." +
-                " The number of tokens in the transform pattern must be equal to" +
-                " or less than the number of tokens in the matching pattern. \n");
+                " The number tokens of each type in the transform pattern must be equal to" +
+                " or less than the number of tokens of the corresponding type in the matching pattern. \n");
         sb.append("Matching Pattern: ");
         sb.append(baseMatchingPattern);
         sb.append("\n");
@@ -494,6 +507,11 @@ class C1 {
         }
     }
 
+    /***
+     * escapes the characters in a perfect match section that are regex tokens that need to be escaped
+     * @param s the string to have its values escaped
+     * @return the string that has escaped characters
+     */
     private String escape(String s) {
         String[] toEscape = {"/", "\\", "+", "*"};
         boolean needsEscaping = Arrays.stream(toEscape).parallel().anyMatch(s::contains);
@@ -515,16 +533,17 @@ class C1 {
         transformOrder = new ArrayList<>();
     }
 
-    private HashMap<String, String> reconstructTable = new HashMap<>();
-
+    /***
+     * builds the table containing the original string values associated with a matching group
+     */
     private void buildReconstructTable() {
         String[] originalSplit = originalMatch.split(" ");
         for (String match : matchingOrder) {
             //only proceed of there's an actual group to be matched (a, A, n or N tokens)
             if (!match.startsWith("s") && !match.startsWith("p") && !match.startsWith("~")) {
-                for(int i=0; i<=originalSplit.length-1;i++){
-                    if(originalMatcher.group(match).equals(originalSplit[i].toUpperCase().replaceAll("[^\\P{M}]",""))){
-                        reconstructTable.put(match,originalSplit[i]);
+                for (int i = 0; i <= originalSplit.length - 1; i++) {
+                    if (originalMatcher.group(match).equals(originalSplit[i].toUpperCase().replaceAll(MATCH_COMBINING_CHARS, ""))) {
+                        reconstructTable.put(match, originalSplit[i]);
                         originalSplit[i] = "";
                         break;
                     }
@@ -533,8 +552,6 @@ class C1 {
         }
     }
 }
-
-
 
 /***
  * This exception is thrown when an ambiguous matching or transform pattern is detected. An ambiguous
@@ -554,3 +571,4 @@ class AmbiguousPatternException extends Exception{
 class InvalidPatternException extends Exception{
     public InvalidPatternException(String message){super (message);}
 }
+
